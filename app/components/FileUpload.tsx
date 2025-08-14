@@ -63,8 +63,8 @@ export default function FileUpload({ onFilesUploaded }: FileUploadProps) {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Your Documents</h2>
-        <p className="text-gray-600">
+        <h2 className="text-2xl font-bold text-white mb-2">Upload Your Documents</h2>
+        <p className="text-gray-300">
           Select PDF, DOCX, TXT, or Markdown files to create your vector database
         </p>
       </div>
@@ -73,15 +73,15 @@ export default function FileUpload({ onFilesUploaded }: FileUploadProps) {
       <div
         {...getRootProps()}
         className={`
-          upload-area border-2 border-dashed rounded-lg p-12 text-center cursor-pointer
+          upload-area border-2 border-dashed rounded-xl p-12 text-center cursor-pointer glass-dark
           ${isDragActive 
-            ? 'border-blue-500 bg-blue-50 drag-over' 
-            : 'border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50'
+            ? 'drag-over' 
+            : ''
           }
         `}
       >
         <input {...getInputProps()} />
-        <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+        <Upload className="h-12 w-12 text-purple-300 mx-auto mb-4" />
         
         {isDragActive ? (
           <div>
@@ -90,15 +90,15 @@ export default function FileUpload({ onFilesUploaded }: FileUploadProps) {
           </div>
         ) : (
           <div>
-            <p className="text-lg font-medium text-gray-700 mb-2">
+            <p className="text-lg font-medium text-gray-200 mb-2">
               Drag & drop files here, or click to browse
             </p>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-gray-400 mb-4">
               Supports PDF, DOCX, TXT, and Markdown files (max 50MB each)
             </p>
             <button
               type="button"
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
             >
               Choose Files
             </button>

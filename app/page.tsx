@@ -84,15 +84,15 @@ export default function Home() {
     <main className="container mx-auto px-4 py-8 max-w-4xl">
       {/* Header */}
       <div className="text-center mb-12">
-        <div className="flex flex-col items-center mb-6">
+        <div className="flex flex-col items-center mb-10">
           <img 
             src="/assets/header.png" 
             alt="Gorzen Engineering" 
-            className="h-16 w-auto mb-4 opacity-90"
+            className="h-24 md:h-28 w-auto mb-5 opacity-95 drop-shadow-[0_8px_24px_rgba(0,0,0,0.45)]"
           />
           <div className="flex items-center justify-center mb-2">
             <Database className="h-8 w-8 text-purple-400 mr-3" />
-            <h1 className="text-3xl font-bold text-white">Document Ingestion Pipeline</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-white gradient-text-brand">Document Ingestion Pipeline</h1>
           </div>
         </div>
         <p className="text-xl text-gray-300 mb-6">
@@ -133,7 +133,7 @@ export default function Home() {
       </div>
 
       {/* Main Content */}
-      <div className="glass rounded-2xl p-8">
+      <div className="glass rounded-2xl p-8 border border-white/10">
         {currentStep === 'upload' && (
           <FileUpload onFilesUploaded={handleFilesUploaded} />
         )}
