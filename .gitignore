@@ -92,3 +92,13 @@ dmypy.json
 
 # Documents (contains sensitive/proprietary content)
 docs/
+
+# Next.js build output
+.next/
+out/
+
+# Temporary files
+temp/
+
+# Node modules
+node_modules/

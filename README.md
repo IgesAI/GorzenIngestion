@@ -1,129 +1,118 @@
-# Gorzen Document Ingestion
+# Gorzen Ingestion - Universal Document Vector Pipeline
 
-A powerful document ingestion pipeline for technical manuals using Docling for PDF conversion, advanced chunking, and Pinecone for vector storage.
+Transform any document collection into a searchable vector database in minutes! A powerful, user-friendly web application that combines Docling's advanced PDF processing with Pinecone's vector storage capabilities.
 
-## Features
+## 🚀 Features
 
-- **Advanced PDF Processing**: Uses Docling for high-quality PDF conversion with optional enrichment features
-- **Smart Chunking**: Configurable hybrid chunking with contextual text generation
-- **Flexible Embeddings**: Support for both local SentenceTransformers and OpenAI embedding models
-- **Rich Metadata**: Automatic document classification and structured metadata extraction
-- **Batch Processing**: Efficient batch processing with progress tracking
-- **Vector Storage**: Seamless integration with Pinecone for scalable vector search
+- **🌐 Web Interface**: Beautiful, intuitive drag-and-drop interface
+- **📄 Multi-Format Support**: PDF, DOCX, TXT, and Markdown files
+- **🔧 Zero Configuration**: Just upload files and enter your API keys
+- **⚡ Real-time Processing**: Live progress tracking and status updates
+- **🎯 Smart Chunking**: Configurable chunking strategies for optimal search
+- **🤖 Dual Embedding Options**: Local models or OpenAI embeddings
+- **📊 Rich Metadata**: Automatic document classification and extraction
+- **☁️ Cloud Ready**: Deploy instantly on Vercel or any Node.js platform
 
-## Installation
+## 🚀 Quick Start
 
-1. Clone the repository:
+### Option 1: Deploy to Vercel (Recommended)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/IgesAI/GorzenIngestion)
+
+1. Click the deploy button above
+2. Connect your GitHub account
+3. Set your environment variables (see Configuration section)
+4. Deploy and start processing documents!
+
+### Option 2: Local Development
+
+1. Clone and install:
 ```bash
 git clone https://github.com/IgesAI/GorzenIngestion.git
 cd GorzenIngestion
-```
-
-2. Create and activate a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
-```bash
+npm install
 pip install -r requirements.txt
 ```
 
-4. Set up environment variables:
+2. Set up environment:
 ```bash
-cp .env.example .env
-# Edit .env with your API keys
+cp env.example .env.local
+# Edit .env.local with your API keys
 ```
 
-## Configuration
+3. Run the development server:
+```bash
+npm run dev
+```
 
-Create a `.env` file with the following variables:
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## 🛠️ How It Works
+
+1. **📤 Upload**: Drag and drop your documents (PDF, DOCX, TXT, MD)
+2. **⚙️ Configure**: Enter your Pinecone API key and choose settings
+3. **🔄 Process**: Watch real-time progress as documents are converted and indexed
+4. **✅ Complete**: Your vector database is ready for semantic search!
+
+## 🔧 Configuration
+
+### Environment Variables
+
+For deployment, set these environment variables:
 
 ```bash
 # Required: Pinecone API key
 PINECONE_API_KEY=your_pinecone_api_key_here
 
-# Optional: OpenAI API key (if using OpenAI embeddings)
+# Optional: OpenAI API key (for better embeddings)
 OPENAI_API_KEY=your_openai_api_key_here
-
-# Optional: Pinecone settings
-PINECONE_CLOUD=aws
-PINECONE_REGION=us-east-1
-
-# Optional: Docling artifacts path for offline model usage
-DOCLING_ARTIFACTS_PATH=/path/to/docling/models
 ```
 
-## Usage
+### API Keys Setup
 
-### Basic Usage
+1. **Pinecone**: Get your API key from [Pinecone Console](https://app.pinecone.io/)
+2. **OpenAI** (optional): Get your API key from [OpenAI Platform](https://platform.openai.com/api-keys)
 
-Process a single PDF:
+## 📖 Usage Guide
+
+### Web Interface (Recommended)
+
+1. Open the application in your browser
+2. Drag & drop your documents onto the upload area
+3. Configure your Pinecone settings
+4. Click "Start Processing" and watch the magic happen!
+
+### Command Line Interface
+
+For batch processing or automation:
+
 ```bash
-python ingest.py --source docs/manual.pdf --index my-index
-```
-
-Process all PDFs in a directory:
-```bash
+# Basic usage
 python ingest.py --source docs/ --index my-index
-```
 
-### Advanced Options
-
-#### Chunk Size Configuration
-```bash
-# Small chunks (512 tokens) - good for precise search
-python ingest.py --source docs/ --index my-index --chunk-size small
-
-# Medium chunks (1024 tokens) - balanced performance
-python ingest.py --source docs/ --index my-index --chunk-size medium
-
-# Large chunks (1536 tokens) - better for complex context
-python ingest.py --source docs/ --index my-index --chunk-size large
-```
-
-#### Embedding Models
-```bash
-# Use local SentenceTransformers model (default)
-python ingest.py --source docs/ --index my-index --model BAAI/bge-small-en-v1.5
-
-# Use OpenAI embeddings
+# With OpenAI embeddings
 python ingest.py --source docs/ --index my-index --use-openai
+
+# With enrichments
+python ingest.py --source docs/ --index my-index --enrich-picture-description
 ```
 
-#### Document Enrichment
-```bash
-# Enable all enrichment features
-python ingest.py --source docs/ --index my-index \
-  --enrich-code \
-  --enrich-formula \
-  --enrich-picture-classes \
-  --enrich-picture-description
-```
+## 🎯 Features Deep Dive
 
-#### Metadata and Debugging
-```bash
-# Show sample metadata for each document
-python ingest.py --source docs/ --index my-index --show-metadata
+### Chunking Strategies
+- **Small (512 tokens)**: Best for precise search and Q&A
+- **Medium (1024 tokens)**: Balanced performance (recommended)
+- **Large (1536 tokens)**: Better context for complex documents
 
-# Custom batch size for processing
-python ingest.py --source docs/ --index my-index --batch-size 32
-```
+### Embedding Options
+- **Local Models**: Free, runs offline using BAAI/bge-small-en-v1.5
+- **OpenAI**: Higher quality, requires API key, uses text-embedding-3-small
 
-### Complete Example
-
-```bash
-python ingest.py \
-  --source docs/ \
-  --index technical-manuals \
-  --chunk-size medium \
-  --use-openai \
-  --enrich-picture-description \
-  --show-metadata \
-  --batch-size 64 \
-  --prefix manual
-```
+### Document Enrichments
+- **Code Understanding**: Better processing of code blocks
+- **Formula Recognition**: Enhanced mathematical content handling
+- **Image Classification**: Automatic image categorization
+- **Image Descriptions**: AI-generated descriptions of diagrams and figures
 
 ## Document Types Supported
 
@@ -172,32 +161,52 @@ PDF Documents → Docling Conversion → Smart Chunking → Embedding Generation
 - Service docs     - Image processing   - Configurable     - Batch processing - Scalable storage
 ```
 
-## Development
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+1. Fork this repository
+2. Connect your GitHub to Vercel
+3. Set environment variables in Vercel dashboard:
+   - `PINECONE_API_KEY`
+   - `OPENAI_API_KEY` (optional)
+4. Deploy!
+
+### Other Platforms
+
+- **Railway**: Connect GitHub repo, set env vars, deploy
+- **Render**: Same process as Railway
+- **DigitalOcean App Platform**: Upload repo, configure build settings
+
+## 🛠️ Development
 
 ### Project Structure
 ```
 GorzenIngestion/
-├── ingest.py          # Main ingestion script
-├── requirements.txt   # Python dependencies
-├── README.md         # This file
-├── .env.example      # Environment template
-├── .gitignore        # Git ignore rules
-└── docs/             # Sample documents (not in repo)
+├── app/                    # Next.js app directory
+│   ├── components/         # React components
+│   ├── api/               # API routes
+│   └── page.tsx           # Main page
+├── lib/                   # Shared utilities
+├── ingest.py             # Core Python processing script
+├── requirements.txt      # Python dependencies
+├── package.json          # Node.js dependencies
+└── next.config.js        # Next.js configuration
 ```
 
 ### Contributing
 
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Make your changes and test thoroughly
-4. Commit with clear messages: `git commit -m "Add feature description"`
-5. Push to your fork: `git push origin feature-name`
-6. Create a pull request
+2. Create a feature branch
+3. Make your changes and test
+4. Submit a pull request
 
-## License
+## 📄 License
 
 This project is proprietary software developed by IgesAI.
 
-## Support
+## 🤝 Support
 
-For issues and questions, please create an issue in the GitHub repository.
+- Create an issue for bugs or feature requests
+- Check existing issues before creating new ones
+- Provide detailed information for faster resolution

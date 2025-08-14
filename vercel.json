@@ -1,0 +1,16 @@
+{
+  "functions": {
+    "app/api/process/route.ts": {
+      "maxDuration": 1800
+    }
+  },
+  "env": {
+    "PYTHON_PATH": "/usr/bin/python3"
+  },
+  "builds": [
+    {
+      "src": "requirements.txt",
+      "use": "@vercel/python"
+    }
+  ]
+}
