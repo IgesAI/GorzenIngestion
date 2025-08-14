@@ -84,16 +84,12 @@ export default function Home() {
     <main className="container mx-auto px-4 py-8 max-w-4xl">
       {/* Header */}
       <div className="text-center mb-12">
-        <div className="flex flex-col items-center mb-10">
+        <div className="flex flex-col items-center mb-8">
           <img 
             src="/assets/header.png" 
             alt="Gorzen Engineering" 
-            className="h-40 md:h-48 lg:h-56 w-auto mb-6 opacity-95 drop-shadow-[0_12px_36px_rgba(0,0,0,0.55)]"
+            className="h-40 md:h-48 lg:h-56 w-auto opacity-95 drop-shadow-[0_12px_36px_rgba(0,0,0,0.55)]"
           />
-          <div className="flex items-center justify-center mb-2">
-            <Database className="h-10 w-10 text-purple-300 mr-3" />
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white gradient-text-brand tracking-tight">Document Ingestion Pipeline</h1>
-          </div>
         </div>
         <p className="text-xl text-gray-300 mb-6">
           Transform any document collection into a searchable vector database in minutes
