@@ -4,17 +4,11 @@
       "maxDuration": 1800
     }
   },
-  "buildCommand": "npm install --legacy-peer-deps && npm run build",
-  "installCommand": "npm install --legacy-peer-deps",
   "framework": "nextjs",
   "builds": [
     {
       "src": "requirements.txt",
       "use": "@vercel/python"
     }
-  ],
-  "env": {
-    "PYTHON_PATH": "/usr/bin/python3",
-    "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
-  }
+  ]
 }
