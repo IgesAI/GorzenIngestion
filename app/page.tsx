@@ -84,11 +84,18 @@ export default function Home() {
     <main className="container mx-auto px-4 py-8 max-w-4xl">
       {/* Header */}
       <div className="text-center mb-12">
-        <div className="flex items-center justify-center mb-4">
-          <Database className="h-12 w-12 text-blue-600 mr-3" />
-          <h1 className="text-4xl font-bold text-gray-900">Gorzen Ingestion</h1>
+        <div className="flex flex-col items-center mb-6">
+          <img 
+            src="/assets/header.png" 
+            alt="Gorzen Engineering" 
+            className="h-16 w-auto mb-4 opacity-90"
+          />
+          <div className="flex items-center justify-center mb-2">
+            <Database className="h-8 w-8 text-purple-400 mr-3" />
+            <h1 className="text-3xl font-bold text-white">Document Ingestion Pipeline</h1>
+          </div>
         </div>
-        <p className="text-xl text-gray-600 mb-6">
+        <p className="text-xl text-gray-300 mb-6">
           Transform any document collection into a searchable vector database in minutes
         </p>
         
@@ -126,7 +133,7 @@ export default function Home() {
       </div>
 
       {/* Main Content */}
-      <div className="bg-white rounded-lg shadow-lg p-8">
+      <div className="glass rounded-2xl p-8">
         {currentStep === 'upload' && (
           <FileUpload onFilesUploaded={handleFilesUploaded} />
         )}
@@ -219,15 +226,15 @@ function StepIndicator({ step, label, isActive, isCompleted, icon }: StepIndicat
       <div className={`
         w-12 h-12 rounded-full flex items-center justify-center border-2 mb-2
         ${isCompleted 
-          ? 'bg-green-500 border-green-500 text-white' 
+          ? 'bg-green-500 border-green-500 text-white shadow-lg shadow-green-500/50' 
           : isActive 
-            ? 'bg-blue-500 border-blue-500 text-white' 
-            : 'bg-gray-100 border-gray-300 text-gray-400'
+            ? 'bg-purple-500 border-purple-500 text-white shadow-lg shadow-purple-500/50' 
+            : 'bg-gray-800/50 border-gray-600 text-gray-400'
         }
       `}>
         {isCompleted ? <CheckCircle className="h-5 w-5" /> : icon}
       </div>
-      <span className={`text-sm font-medium ${isActive ? 'text-blue-600' : 'text-gray-500'}`}>
+      <span className={`text-sm font-medium ${isActive ? 'text-purple-400' : 'text-gray-400'}`}>
         {label}
       </span>
     </div>
@@ -242,10 +249,10 @@ interface FeatureCardProps {
 
 function FeatureCard({ icon, title, description }: FeatureCardProps) {
   return (
-    <div className="bg-white rounded-lg p-6 shadow-md border border-gray-100">
-      <div className="mb-4">{icon}</div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-gray-600 text-sm">{description}</p>
+    <div className="glass-dark rounded-xl p-6 hover:bg-white/10 transition-all duration-300">
+      <div className="mb-4 text-purple-400">{icon}</div>
+      <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
+      <p className="text-gray-300 text-sm">{description}</p>
     </div>
   )
 }
