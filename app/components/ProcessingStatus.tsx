@@ -66,7 +66,7 @@ export default function ProcessingStatus({ job }: ProcessingStatusProps) {
     <div className="text-center space-y-6">
       <div className="flex flex-col items-center">
         {getStatusIcon()}
-        <h2 className={`text-2xl font-bold mt-4 ${getStatusColor()}`}>
+        <h2 className={`text-2xl md:text-3xl font-bold mt-4 ${getStatusColor()} tracking-tight`}>
           {job.status === 'queued' && 'Processing Queued'}
           {job.status === 'processing' && 'Processing Documents'}
           {job.status === 'completed' && 'Processing Complete'}

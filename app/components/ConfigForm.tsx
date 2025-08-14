@@ -75,8 +75,8 @@ export default function ConfigForm({ fileCount, onSubmit, onBack }: ConfigFormPr
           Back
         </button>
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Configure Processing</h2>
-          <p className="text-gray-600">Set up your Pinecone index and processing options</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">Configure Processing</h2>
+          <p className="text-gray-300">Set up your Pinecone index and processing options</p>
         </div>
       </div>
 
