@@ -1,14 +1,8 @@
 {
   "functions": {
     "app/api/process/route.ts": {
-      "maxDuration": 1800
+      "maxDuration": 900
     }
   },
-  "framework": "nextjs",
-  "builds": [
-    {
-      "src": "requirements.txt",
-      "use": "@vercel/python"
-    }
-  ]
+  "framework": "nextjs"
 }
