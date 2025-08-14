@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { ArrowLeft, Database, Zap, Settings, Eye, EyeOff } from 'lucide-react'
 
 interface ConfigFormProps {
@@ -158,6 +158,7 @@ export default function ConfigForm({ fileCount, onSubmit, onBack }: ConfigFormPr
                 value={config.cloud}
                 onChange={(e) => setConfig(prev => ({ ...prev, cloud: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                aria-label="Cloud Provider"
               >
                 <option value="aws">AWS</option>
                 <option value="gcp">Google Cloud</option>
@@ -173,6 +174,7 @@ export default function ConfigForm({ fileCount, onSubmit, onBack }: ConfigFormPr
                 value={config.region}
                 onChange={(e) => setConfig(prev => ({ ...prev, region: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                aria-label="Region"
               >
                 {config.cloud === 'aws' && (
                   <>
@@ -269,6 +271,7 @@ export default function ConfigForm({ fileCount, onSubmit, onBack }: ConfigFormPr
                 value={config.chunkSize}
                 onChange={(e) => setConfig(prev => ({ ...prev, chunkSize: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                aria-label="Chunk Size"
               >
                 <option value="small">Small (512 tokens) - Precise search</option>
                 <option value="medium">Medium (1024 tokens) - Balanced</option>

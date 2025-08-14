@@ -142,6 +142,7 @@ export default function FileUpload({ onFilesUploaded }: FileUploadProps) {
                 <button
                   onClick={() => removeFile(index)}
                   className="text-gray-400 hover:text-red-500 transition-colors"
+                  aria-label="Remove file"
                 >
                   <X className="h-5 w-5" />
                 </button>
