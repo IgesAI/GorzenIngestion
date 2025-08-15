@@ -143,12 +143,37 @@ async function processWithPinecone(jobId: string, files: File[], config: any) {
       env.OPENAI_API_KEY = config.openaiApiKey
     }
 
-    // Spawn Python process
-    const pythonProcess = spawn('python', pythonArgs, {
-      cwd: process.cwd(),
-      env,
-      stdio: ['pipe', 'pipe', 'pipe']
-    })
+    // Try different Python executables in order of preference
+    const pythonCommands = process.platform === 'win32' 
+      ? ['python', 'python.exe', 'py', 'python3']
+      : ['python3', 'python']
+    
+    let pythonProcess: any = null
+    let lastError: Error | null = null
+    
+    // Try each Python command until one works
+    for (const pythonCmd of pythonCommands) {
+      try {
+        pythonProcess = spawn(pythonCmd, pythonArgs, {
+          cwd: process.cwd(),
+          env,
+          stdio: ['pipe', 'pipe', 'pipe'],
+          shell: true
+        })
+        
+        // If spawn succeeds, break out of loop
+        break
+      } catch (error) {
+        lastError = error as Error
+        console.log(`Failed to spawn with ${pythonCmd}:`, error)
+        continue
+      }
+    }
+    
+    // If no Python command worked, throw error
+    if (!pythonProcess) {
+      throw new Error(`Failed to find Python executable. Tried: ${pythonCommands.join(', ')}. Last error: ${lastError?.message}`)
+    }
 
     let totalChunks = 0
     let processedFiles = 0
