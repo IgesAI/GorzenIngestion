@@ -179,7 +179,7 @@ async function processWithPinecone(jobId: string, files: File[], config: any) {
     let processedFiles = 0
 
     // Handle stdout for progress updates
-    pythonProcess.stdout.on('data', (data) => {
+    pythonProcess.stdout.on('data', (data: Buffer) => {
       const output = data.toString()
       console.log('Python stdout:', output)
       
@@ -206,7 +206,7 @@ async function processWithPinecone(jobId: string, files: File[], config: any) {
     })
 
     // Handle stderr
-    pythonProcess.stderr.on('data', (data) => {
+    pythonProcess.stderr.on('data', (data: Buffer) => {
       const error = data.toString()
       console.error('Python stderr:', error)
       
@@ -219,7 +219,7 @@ async function processWithPinecone(jobId: string, files: File[], config: any) {
     })
 
     // Handle process completion
-    pythonProcess.on('close', async (code) => {
+    pythonProcess.on('close', async (code: number | null) => {
       try {
         // Clean up temp directory
         await fs.promises.rm(tempDir, { recursive: true, force: true })
@@ -244,7 +244,7 @@ async function processWithPinecone(jobId: string, files: File[], config: any) {
     })
 
     // Handle process errors
-    pythonProcess.on('error', (error) => {
+    pythonProcess.on('error', (error: Error) => {
       console.error('Python process error:', error)
       job.status = 'failed'
       job.message = `Failed to start processing: ${error.message}`
