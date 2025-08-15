@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "14.0.4",
+    "next": "14.2.15",
     "react": "^18",
     "react-dom": "^18",
     "react-dropzone": "^14.2.3",
@@ -26,9 +26,12 @@
     "autoprefixer": "^10.0.1",
     "postcss": "^8",
     "eslint": "^8",
-    "eslint-config-next": "14.0.4"
+    "eslint-config-next": "14.2.15"
   },
   "engines": {
     "node": ">=18"
+  },
+  "overrides": {
+    "@rollup/rollup-linux-x64-gnu": "4.21.3"
   }
 }
