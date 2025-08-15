@@ -1,0 +1,18 @@
+# Core conversion and chunking
+docling>=1.16.0
+
+# Local embeddings (CPU-friendly, downloads model on first run)
+sentence-transformers>=2.7.0
+
+# OpenAI embeddings (for text-embedding-3-small compatibility)
+openai>=1.0.0
+
+# Pinecone client (v5+ unified client)
+pinecone>=5.0.0
+
+# Env and CLI ergonomics
+python-dotenv>=1.0.1
+click>=8.1.7
+
+# Utils
+tqdm>=4.66.4
