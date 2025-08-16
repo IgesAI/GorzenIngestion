@@ -26,26 +26,40 @@ Transform any document collection into a searchable vector database in minutes! 
 
 ### Option 2: Local Development
 
-1. Clone and install:
+1. **Prerequisites**:
+   - Python 3.9+ with pip
+   - Node.js 18+ with npm
+   - Git
+
+2. **Clone and install**:
 ```bash
 git clone https://github.com/IgesAI/GorzenIngestion.git
 cd GorzenIngestion
-npm install
+
+# Install Python dependencies
 pip install -r requirements.txt
+
+# Install Node.js dependencies  
+npm install
 ```
 
-2. Set up environment:
+3. **Set up environment**:
 ```bash
 cp env.example .env.local
-# Edit .env.local with your API keys
+# Edit .env.local with your API keys (see Configuration section)
 ```
 
-3. Run the development server:
+4. **Test your setup** (recommended):
+```bash
+python test_pinecone.py
+```
+
+5. **Run the development server**:
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+6. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ## 🛠️ How It Works
 
@@ -58,20 +72,39 @@ npm run dev
 
 ### Environment Variables
 
-For deployment, set these environment variables:
+Create a `.env.local` file (for local development) or set these in your deployment platform:
 
 ```bash
-# Required: Pinecone API key
+# REQUIRED: Pinecone API Key
 PINECONE_API_KEY=your_pinecone_api_key_here
 
-# Optional: OpenAI API key (for better embeddings)
+# OPTIONAL: OpenAI API Key (only needed if using --use-openai flag)
 OPENAI_API_KEY=your_openai_api_key_here
+
+# OPTIONAL: Pinecone Configuration (defaults shown)
+PINECONE_CLOUD=aws
+PINECONE_REGION=us-east-1
 ```
 
 ### API Keys Setup
 
-1. **Pinecone**: Get your API key from [Pinecone Console](https://app.pinecone.io/)
-2. **OpenAI** (optional): Get your API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+1. **Pinecone API Key** (Required):
+   - Go to [Pinecone Console](https://app.pinecone.io/)
+   - Create account or sign in
+   - Navigate to "API Keys" section
+   - Copy your API key
+
+2. **OpenAI API Key** (Optional - for higher quality embeddings):
+   - Go to [OpenAI Platform](https://platform.openai.com/api-keys)
+   - Create account or sign in
+   - Create a new API key
+   - Copy the key (you won't see it again!)
+
+### Supported Cloud Regions
+
+**AWS**: us-east-1, us-west-2, eu-west-1  
+**GCP**: us-central1, us-east1, europe-west1  
+**Azure**: eastus, westus2, westeurope
 
 ## 📖 Usage Guide
 
@@ -205,8 +238,48 @@ GorzenIngestion/
 
 This project is proprietary software developed by IgesAI.
 
+## 🔍 Troubleshooting
+
+### Common Issues
+
+1. **"PINECONE_API_KEY not set"**
+   - Make sure you've created a `.env.local` file (local) or set environment variables (deployment)
+   - Copy your API key exactly from the Pinecone console
+
+2. **"Failed to create index: dimension mismatch"**
+   - You're trying to use an existing index with different embedding dimensions
+   - Either use a different index name or delete the existing index
+
+3. **"Embedding model test failed"**
+   - Run `python test_pinecone.py` to diagnose the issue
+   - Make sure you have a stable internet connection for model download
+
+4. **"Python not found" errors**
+   - Make sure Python 3.9+ is installed and accessible
+   - Try `python3` instead of `python` on macOS/Linux
+
+5. **Memory issues during processing**
+   - Reduce batch size with `--batch-size 16`
+   - Use smaller chunk sizes: `--chunk-size small`
+   - Process fewer files at once
+
+### Running the Test Script
+
+Before using the system, run the test script to validate your setup:
+
+```bash
+python test_pinecone.py
+```
+
+This will check:
+- ✓ All required packages are installed
+- ✓ Pinecone API connection works
+- ✓ Embedding models load correctly
+- ✓ OpenAI API works (if configured)
+
 ## 🤝 Support
 
 - Create an issue for bugs or feature requests
 - Check existing issues before creating new ones
 - Provide detailed information for faster resolution
+- Run `python test_pinecone.py` and include the output in your issue

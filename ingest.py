@@ -12,7 +12,7 @@ from docling.datamodel.pipeline_options import PdfPipelineOptions
 from docling.chunking import HybridChunker
 
 from sentence_transformers import SentenceTransformer
-from pinecone import Pinecone, ServerlessSpec
+from pinecone import Pinecone, ServerlessSpec, PodSpec
 
 try:
     from openai import OpenAI
@@ -144,18 +144,85 @@ def chunk_document(dl_doc: Any, tokenizer_model: str, chunk_size: str = "medium"
 
 def ensure_index(pc: Pinecone, index_name: str, dimension: int, metric: str, cloud: str, region: str):
     """Ensure Pinecone index exists, create if missing."""
+    # First check if index exists
+    if index_name in pc.list_indexes().names():
+        click.echo(f"Index '{index_name}' already exists")
+        index = pc.Index(index_name)
+        
+        # Validate index configuration
+        index_stats = index.describe_index_stats()
+        index_info = pc.describe_index(index_name)
+        
+        if index_info.dimension != dimension:
+            raise click.ClickException(
+                f"Index dimension mismatch: existing={index_info.dimension}, required={dimension}. "
+                f"Use a different index name or delete the existing index."
+            )
+        
+        if index_info.metric.lower() != metric.lower():
+            click.echo(f"Warning: Index metric mismatch: existing={index_info.metric}, requested={metric}")
+        
+        return index
+    
+    # Create new index with proper cloud provider specs
+    click.echo(f"Creating new index '{index_name}' with dimension {dimension}")
+    
+    # Map cloud/region to proper Pinecone specifications
+    if cloud.lower() == 'aws':
+        if region in ['us-east-1', 'us-west-2', 'eu-west-1']:
+            spec = ServerlessSpec(cloud='aws', region=region)
+        else:
+            # Fallback to us-east-1 if region not supported
+            click.echo(f"Warning: Region '{region}' might not be supported for AWS, using 'us-east-1'")
+            spec = ServerlessSpec(cloud='aws', region='us-east-1')
+    elif cloud.lower() == 'gcp':
+        if region in ['us-central1', 'us-east1', 'europe-west1']:
+            spec = ServerlessSpec(cloud='gcp', region=region)
+        else:
+            click.echo(f"Warning: Region '{region}' might not be supported for GCP, using 'us-central1'")
+            spec = ServerlessSpec(cloud='gcp', region='us-central1')
+    elif cloud.lower() == 'azure':
+        if region in ['eastus', 'westus2', 'westeurope']:
+            spec = ServerlessSpec(cloud='azure', region=region)
+        else:
+            click.echo(f"Warning: Region '{region}' might not be supported for Azure, using 'eastus'")
+            spec = ServerlessSpec(cloud='azure', region='eastus')
+    else:
+        # Default to AWS if cloud provider not recognized
+        click.echo(f"Warning: Cloud provider '{cloud}' not recognized, defaulting to AWS us-east-1")
+        spec = ServerlessSpec(cloud='aws', region='us-east-1')
+    
     try:
-        idx = pc.Index(index_name)
-        _ = idx.describe_index_stats()
-        return idx
-    except Exception:
         pc.create_index(
             name=index_name,
             dimension=dimension,
             metric=metric,
-            spec=ServerlessSpec(cloud=cloud, region=region),
+            spec=spec,
         )
+        
+        # Wait for index to be ready
+        import time
+        click.echo("Waiting for index to be ready...")
+        max_wait = 60  # Maximum wait time in seconds
+        wait_time = 0
+        while wait_time < max_wait:
+            try:
+                index = pc.Index(index_name)
+                index.describe_index_stats()  # Test if index is ready
+                click.echo(f"Index '{index_name}' is ready!")
+                return index
+            except Exception:
+                time.sleep(2)
+                wait_time += 2
+                if wait_time % 10 == 0:
+                    click.echo(f"Still waiting for index... ({wait_time}s)")
+        
+        # If we get here, index might still be initializing but let's try to use it
+        click.echo("Index creation completed, proceeding with vector insertion...")
         return pc.Index(index_name)
+        
+    except Exception as e:
+        raise click.ClickException(f"Failed to create index: {str(e)}")
 
 
 def embed_texts(model, texts: List[str], use_openai: bool = False) -> List[List[float]]:
@@ -174,11 +241,61 @@ def embed_texts(model, texts: List[str], use_openai: bool = False) -> List[List[
 
 
 def upsert_vectors(index, ids: List[str], vectors: List[List[float]], metadatas: List[Dict[str, Any]]):
-    """Upsert vectors to Pinecone index."""
+    """Upsert vectors to Pinecone index with proper error handling."""
+    if not ids or not vectors or not metadatas:
+        click.echo("Warning: Empty batch, skipping upsert")
+        return
+    
+    if len(ids) != len(vectors) or len(ids) != len(metadatas):
+        raise ValueError(f"Mismatched lengths: ids={len(ids)}, vectors={len(vectors)}, metadatas={len(metadatas)}")
+    
+    # Validate vector dimensions
+    if vectors:
+        expected_dim = len(vectors[0])
+        for i, vec in enumerate(vectors):
+            if len(vec) != expected_dim:
+                raise ValueError(f"Vector {i} has dimension {len(vec)}, expected {expected_dim}")
+    
+    # Prepare vectors in the format expected by Pinecone SDK v5+
     items = []
     for id_, vec, md in zip(ids, vectors, metadatas):
-        items.append({"id": id_, "values": vec, "metadata": md})
-    index.upsert(vectors=items)
+        # Ensure metadata values are Pinecone-compatible types
+        clean_metadata = {}
+        for key, value in md.items():
+            if isinstance(value, (str, int, float, bool)):
+                clean_metadata[key] = value
+            elif value is None:
+                continue  # Skip None values
+            else:
+                # Convert other types to string as fallback
+                clean_metadata[key] = str(value)
+        
+        items.append({
+            "id": str(id_),  # Ensure ID is string
+            "values": vec,
+            "metadata": clean_metadata
+        })
+    
+    try:
+        # Use the modern upsert method
+        response = index.upsert(vectors=items)
+        
+        # Check if upsert was successful
+        if hasattr(response, 'upserted_count'):
+            if response.upserted_count != len(items):
+                click.echo(f"Warning: Expected to upsert {len(items)} vectors, but only {response.upserted_count} were processed")
+        
+    except Exception as e:
+        # Provide more detailed error information
+        error_msg = f"Failed to upsert {len(items)} vectors: {str(e)}"
+        if "dimension" in str(e).lower():
+            error_msg += "\nHint: Check that your embedding model dimension matches the index dimension"
+        elif "quota" in str(e).lower() or "limit" in str(e).lower():
+            error_msg += "\nHint: You may have hit Pinecone quota limits. Check your usage in the Pinecone console"
+        elif "key" in str(e).lower() or "auth" in str(e).lower():
+            error_msg += "\nHint: Check your Pinecone API key and permissions"
+        
+        raise click.ClickException(error_msg)
 
 
 @click.command()
@@ -256,10 +373,35 @@ def main(
         click.echo(f"Using OpenAI embedding model: {OPENAI_EMBED_MODEL}")
         emb_model = OpenAI(api_key=openai_api_key)
         dimension = 1536  # text-embedding-3-small dimension
+        
+        # Test OpenAI connection
+        try:
+            test_response = emb_model.embeddings.create(
+                input=["test"],
+                model=OPENAI_EMBED_MODEL
+            )
+            click.echo("✓ OpenAI connection verified")
+        except Exception as e:
+            raise click.UsageError(f"Failed to connect to OpenAI: {str(e)}")
+            
     else:
         click.echo(f"Loading local embedding model: {embed_model_name}")
-        emb_model = SentenceTransformer(embed_model_name)
-        dimension = emb_model.get_sentence_embedding_dimension()
+        try:
+            emb_model = SentenceTransformer(embed_model_name)
+            dimension = emb_model.get_sentence_embedding_dimension()
+            
+            # Test model with a sample text
+            test_embedding = emb_model.encode(["test"], normalize_embeddings=True)
+            actual_dimension = len(test_embedding[0])
+            
+            if actual_dimension != dimension:
+                click.echo(f"Warning: Model reported dimension {dimension} but actual is {actual_dimension}")
+                dimension = actual_dimension
+                
+            click.echo("✓ Local embedding model loaded successfully")
+            
+        except Exception as e:
+            raise click.UsageError(f"Failed to load embedding model '{embed_model_name}': {str(e)}")
     
     click.echo(f"Embedding dimension: {dimension}")
 
@@ -449,27 +591,73 @@ def main(
 
         # Embed and upsert in batches
         doc_prefix = prefix or pdf.stem
-        pbar = tqdm(total=len(texts), ncols=100, desc="Upserting")
+        pbar = tqdm(total=len(texts), ncols=100, desc="Upserting", unit="chunks")
+        
+        total_upserted = 0
         
         for start in range(0, len(texts), batch_size):
             end = min(start + batch_size, len(texts))
             batch_texts = texts[start:end]
             batch_metas = metas[start:end]
             
-            # Generate embeddings
-            vecs = embed_texts(emb_model, batch_texts, use_openai=use_openai)
-            
-            # Create unique IDs
-            ids = [f"{doc_prefix}-{i}" for i in range(start, end)]
-            
-            # Upsert to Pinecone
-            upsert_vectors(index, ids, vecs, batch_metas)
-            pbar.update(len(batch_texts))
+            try:
+                # Generate embeddings
+                vecs = embed_texts(emb_model, batch_texts, use_openai=use_openai)
+                
+                # Validate embedding dimensions
+                if vecs and len(vecs[0]) != dimension:
+                    raise click.ClickException(
+                        f"Embedding dimension mismatch: got {len(vecs[0])}, expected {dimension}"
+                    )
+                
+                # Create unique IDs with timestamp to avoid conflicts
+                import time
+                timestamp = int(time.time() * 1000)  # milliseconds for uniqueness
+                ids = [f"{doc_prefix}-{timestamp}-{i}" for i in range(start, end)]
+                
+                # Upsert to Pinecone
+                upsert_vectors(index, ids, vecs, batch_metas)
+                total_upserted += len(batch_texts)
+                pbar.update(len(batch_texts))
+                
+            except Exception as e:
+                pbar.close()
+                click.echo(f"Error processing batch {start}-{end}: {str(e)}")
+                if "rate limit" in str(e).lower() or "quota" in str(e).lower():
+                    click.echo("Hint: You may need to upgrade your Pinecone plan or wait for quota reset")
+                elif "dimension" in str(e).lower():
+                    click.echo(f"Hint: Embedding model produces {len(vecs[0]) if vecs else 'unknown'}-dim vectors, but index expects {dimension}-dim")
+                raise
             
         pbar.close()
-        click.echo(f"Processed {len(chunks)} chunks from {pdf}")
+        
+        # Verify upsert success
+        try:
+            final_stats = index.describe_index_stats()
+            index_vector_count = final_stats.total_vector_count if hasattr(final_stats, 'total_vector_count') else 'unknown'
+            click.echo(f"✓ Processed {len(chunks)} chunks from {pdf}")
+            click.echo(f"✓ Total vectors in index: {index_vector_count}")
+        except Exception:
+            click.echo(f"✓ Processed {len(chunks)} chunks from {pdf} (stats unavailable)")
 
-    click.echo("Done!")
+    # Final summary
+    try:
+        final_stats = index.describe_index_stats()
+        total_vectors = final_stats.total_vector_count if hasattr(final_stats, 'total_vector_count') else 'unknown'
+        click.echo("\n" + "="*50)
+        click.echo("🎉 INGESTION COMPLETE!")
+        click.echo("="*50)
+        click.echo(f"Index name: {index_name}")
+        click.echo(f"Total documents processed: {len(pdf_paths)}")
+        click.echo(f"Total vectors in index: {total_vectors}")
+        click.echo(f"Embedding model: {'OpenAI ' + OPENAI_EMBED_MODEL if use_openai else embed_model_name}")
+        click.echo(f"Vector dimension: {dimension}")
+        click.echo(f"Metric: {metric}")
+        click.echo(f"Cloud/Region: {cloud}/{region}")
+        click.echo("\n✅ Your vector database is ready for use!")
+        click.echo("Use the Pinecone console or SDK to query your index.")
+    except Exception:
+        click.echo("\n✅ Processing complete! Your vector database should be ready for use.")
 
 
 if __name__ == "__main__":

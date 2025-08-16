@@ -117,6 +117,14 @@ async function processWithPinecone(jobId: string, files: File[], config: any) {
       '--batch-size', '32'
     ]
 
+    // Add cloud and region configuration
+    if (config.cloud) {
+      pythonArgs.push('--cloud', config.cloud)
+    }
+    if (config.region) {
+      pythonArgs.push('--region', config.region)
+    }
+
     // Add optional parameters
     if (config.useOpenAI) {
       pythonArgs.push('--use-openai')
