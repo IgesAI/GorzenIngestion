@@ -1,9 +1,9 @@
 [phases.setup]
-nixPkgs = ["python39", "nodejs_18", "python39Packages.pip"]
+nixPkgs = ["python311", "nodejs_18", "python311Packages.pip"]
 
 [phases.install]
 cmds = [
-    "npm ci",
+    "npm install --production",
     "pip install -r requirements.txt"
 ]
 

@@ -1,0 +1,12 @@
+# Railway ignore file - exclude files not needed for deployment
+.git
+.gitignore
+README.md
+railway-test.md
+test_pinecone.py
+assets/
+.next/
+node_modules/
+*.log
+.env*
+!.env.example
