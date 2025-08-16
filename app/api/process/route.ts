@@ -210,6 +210,10 @@ async function processWithPinecone(jobId: string, files: File[], config: any) {
         job.message = 'Uploading vectors to Pinecone...'
         job.progress = 75 + Math.floor(Math.random() * 20) // 75-95%
         sharedJobs.set(jobId, job)
+      } else if (output.includes('INGESTION COMPLETE') || output.includes('Your vector database is ready for use')) {
+        job.message = 'Processing completed successfully!'
+        job.progress = 95
+        sharedJobs.set(jobId, job)
       }
     })
 
@@ -218,8 +222,15 @@ async function processWithPinecone(jobId: string, files: File[], config: any) {
       const error = data.toString()
       console.error('Python stderr:', error)
       
-      // Don't fail on warnings, only on actual errors
-      if (error.toLowerCase().includes('error') && !error.toLowerCase().includes('warning')) {
+      // Only fail on critical errors, ignore warnings and normal stderr output
+      if (error.toLowerCase().includes('traceback') || 
+          error.toLowerCase().includes('fatal') ||
+          (error.toLowerCase().includes('error') && 
+           !error.toLowerCase().includes('warning') &&
+           !error.toLowerCase().includes('experimentalwarning') &&
+           !error.toLowerCase().includes('downloading') &&
+           !error.toLowerCase().includes('sequence length') &&
+           !error.toLowerCase().includes('indexing errors'))) {
         job.status = 'failed'
         job.message = `Processing failed: ${error}`
         sharedJobs.set(jobId, job)
