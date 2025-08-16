@@ -90,11 +90,13 @@ export default function ConfigForm({ fileCount, onSubmit, onBack }: ConfigFormPr
 
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="indexName" className="block text-sm font-medium text-gray-700 mb-2">
                 Index Name *
               </label>
               <div className="flex space-x-2">
                 <input
+                  id="indexName"
+                  name="indexName"
                   type="text"
                   value={config.indexName}
                   onChange={(e) => setConfig(prev => ({ ...prev, indexName: e.target.value }))}
@@ -120,11 +122,13 @@ export default function ConfigForm({ fileCount, onSubmit, onBack }: ConfigFormPr
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="pineconeApiKey" className="block text-sm font-medium text-gray-700 mb-2">
                 Pinecone API Key *
               </label>
               <div className="relative">
                 <input
+                  id="pineconeApiKey"
+                  name="pineconeApiKey"
                   type={showPineconeKey ? 'text' : 'password'}
                   value={config.pineconeApiKey}
                   onChange={(e) => setConfig(prev => ({ ...prev, pineconeApiKey: e.target.value }))}
@@ -151,14 +155,15 @@ export default function ConfigForm({ fileCount, onSubmit, onBack }: ConfigFormPr
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="cloudProvider" className="block text-sm font-medium text-gray-700 mb-2">
                 Cloud Provider
               </label>
               <select
+                id="cloudProvider"
+                name="cloudProvider"
                 value={config.cloud}
                 onChange={(e) => setConfig(prev => ({ ...prev, cloud: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                aria-label="Cloud Provider"
               >
                 <option value="aws">AWS</option>
                 <option value="gcp">Google Cloud</option>
@@ -167,14 +172,15 @@ export default function ConfigForm({ fileCount, onSubmit, onBack }: ConfigFormPr
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="region" className="block text-sm font-medium text-gray-700 mb-2">
                 Region
               </label>
               <select
+                id="region"
+                name="region"
                 value={config.region}
                 onChange={(e) => setConfig(prev => ({ ...prev, region: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                aria-label="Region"
               >
                 {config.cloud === 'aws' && (
                   <>
@@ -232,11 +238,13 @@ export default function ConfigForm({ fileCount, onSubmit, onBack }: ConfigFormPr
 
             {config.useOpenAI && (
               <div className="ml-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="openaiApiKey" className="block text-sm font-medium text-gray-700 mb-2">
                   OpenAI API Key *
                 </label>
                 <div className="relative">
                   <input
+                    id="openaiApiKey"
+                    name="openaiApiKey"
                     type={showOpenAIKey ? 'text' : 'password'}
                     value={config.openaiApiKey}
                     onChange={(e) => setConfig(prev => ({ ...prev, openaiApiKey: e.target.value }))}
@@ -264,14 +272,15 @@ export default function ConfigForm({ fileCount, onSubmit, onBack }: ConfigFormPr
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="chunkSize" className="block text-sm font-medium text-gray-700 mb-2">
                 Chunk Size
               </label>
               <select
+                id="chunkSize"
+                name="chunkSize"
                 value={config.chunkSize}
                 onChange={(e) => setConfig(prev => ({ ...prev, chunkSize: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                aria-label="Chunk Size"
               >
                 <option value="small">Small (512 tokens) - Precise search</option>
                 <option value="medium">Medium (1024 tokens) - Balanced</option>
