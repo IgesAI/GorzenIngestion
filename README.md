@@ -70,16 +70,21 @@ npm run dev
 
 ## 🔧 Configuration
 
-### Environment Variables
+### API Key Configuration
 
-Create a `.env.local` file (for local development) or set these in your deployment platform:
+**🎯 User-Provided API Keys (Recommended for Deployment)**
+- Users enter their own Pinecone and OpenAI API keys through the web interface
+- No hardcoded keys in the deployment
+- Perfect for public/shared deployments
+
+**🛠️ Environment Variables (Local Development Only)**
+
+For local development, create a `.env.local` file:
 
 ```bash
-# REQUIRED: Pinecone API Key
-PINECONE_API_KEY=your_pinecone_api_key_here
-
-# OPTIONAL: OpenAI API Key (only needed if using --use-openai flag)
-OPENAI_API_KEY=your_openai_api_key_here
+# OPTIONAL: For local development/testing only
+PINECONE_API_KEY=your_test_key_here
+OPENAI_API_KEY=your_test_key_here
 
 # OPTIONAL: Pinecone Configuration (defaults shown)
 PINECONE_CLOUD=aws

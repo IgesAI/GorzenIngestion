@@ -1,13 +1,7 @@
 [build]
-builder = "nixpacks"
+builder = "dockerfile"
 
 [deploy]
 healthcheckPath = "/"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
-
-[[services]]
-name = "gorzen-ingestion"
-
-[services.gorzen-ingestion]
-source = "."
