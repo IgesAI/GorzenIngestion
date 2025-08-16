@@ -18,8 +18,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy Node.js package files and install
-COPY package*.json ./
-RUN npm ci --only=production
+COPY package*.json package-lock.json ./
+RUN npm ci --omit=dev
 
 # Copy application code
 COPY . .
